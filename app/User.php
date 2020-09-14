@@ -6,8 +6,8 @@ use Illuminate\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Lumen\Auth\Authorizable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
@@ -24,9 +24,9 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         return $this->hasMany(Telephone::class);
     }
 
-    public function address(): BelongsTo
+    public function address(): HasOne
     {
-        return $this->belongsTo(Address::class);
+        return $this->hasOne(Address::class);
     }
 
     public function setEmailAttribute(string $email): void

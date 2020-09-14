@@ -16,9 +16,11 @@ class Controller extends BaseController
         $this->validator = $validator;
     }
 
-    public function getGeneralErrorResponse(): JsonResponse
+    public function getGeneralErrorResponse($e = null): JsonResponse
     {
-        return response()->json(['message' => 'Sorry, an error occurred, try again later.'], 500);
+        return is_null($e)
+        ? response()->json(['message' => 'Sorry, an error occurred, try again later.'], 500)
+        : response()->json(['message' => $e->getMessage()], 500);
     }
 
     public function getGeneralNotFoundResponse(): JsonResponse

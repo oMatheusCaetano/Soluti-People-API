@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Validators\UserRequestValidator;
+use App\Services\UserService;
 use App\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -10,9 +11,12 @@ use Illuminate\Http\Request;
 class UserController extends Controller
 {
 
-    public function __construct(UserRequestValidator $validator)
+    private $userService;
+
+    public function __construct(UserRequestValidator $validator, UserService $userService)
     {
         parent::__construct($validator);
+        $this->userService = $userService;
     }
 
     public function index(): JsonResponse
@@ -36,39 +40,9 @@ class UserController extends Controller
         }
     }
 
-    public function store(Request $request): JsonResponse
-    {
-        $this->validator->validate($request);
-        try {
-            return response()->json(User::create($request->all()), 201);
-        } catch (\Exception $e) {
-            return $this->getGeneralErrorResponse();
-        }
-    }
-
     public function update(Request $request, int $id): JsonResponse
     {
-        $this->validator->validate($request);
-        try {
-            $user = User::find($id);
-            if (is_null($user)) {
-                return $this->getGeneralNotFoundResponse();
-            }
-            $user->fill($request->all())->save();
-        } catch (\Exception $e) {
-            return $this->getGeneralErrorResponse();
-        }
+        $user = $this->userService->update($request->all(), $id);
         return response()->json($user, 200);
-    }
-
-    public function destroy(int $id): JsonResponse
-    {
-        try {
-            return User::destroy($id) === 0
-            ? $this->getGeneralNotFoundResponse()
-            : response()->json([], 204);
-        } catch (\Exception $e) {
-            return $this->getGeneralErrorResponse();
-        }
     }
 }

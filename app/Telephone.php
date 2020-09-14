@@ -10,7 +10,7 @@ class Telephone extends Model
 
     protected $fillable = ['number', 'user_id'];
 
-    public function address(): BelongsTo
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
