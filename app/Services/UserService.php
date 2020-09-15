@@ -19,52 +19,56 @@ class UserService extends Service
 
     public function update(array $data, int $id)
     {
+        $telephones = [];
         DB::beginTransaction();
         $user = User::find($id);
         if (is_null($user)) {
             return null;
         }
+        $user->fill($data);
+        $user->save();
         if (isset($data['telephones'])) {
-            $this->manageTelephones($data['telephones'], $user);
+            $telephones = $this->manageTelephones($data['telephones'], $user);
         }
         if (isset($data['address'])) {
             $this->manageAddress($data['address'], $user);
         }
-        $user->fill($data);
-        $user->save();
         DB::commit();
+        $user->telephones = $telephones;
         return $user;
     }
 
     private function manageTelephones(array $telephones, User $user)
     {
+        $phones = [];
         if (empty($telephones)) {
             foreach ($user->telephones as $telephone) {
                 $this->telephoneService->destroy($telephone->id);
             }
-        } else {
-            foreach ($telephones as $telephone) {
-                if (isset($telephone['id'])) {
-                    $this->telephoneService->update($telephone, $telephone['id']);
-                } else {
-                    $telephone['user_id'] = $user->id;
-                    $this->telephoneService->create($telephone);
-                }
+            return $phones;
+        }
+        foreach ($telephones as $telephone) {
+            if (isset($telephone['id'])) {
+                $phones[] = $this->telephoneService->update($telephone, $telephone['id']);
+            } else {
+                $telephone['user_id'] = $user->id;
+                $phones[] = $this->telephoneService->create($telephone);
             }
         }
+        return $phones;
     }
 
     private function manageAddress(array $address, User $user)
     {
         if (empty($address)) {
             if (!is_null($user->address)) {
-                $this->addressService->destroy($user->address->id);
+                return $this->addressService->destroy($user->address->id);
             }
         } else if (isset($address['id'])) {
-            $this->addressService->update($address, $address['id']);
+            return $this->addressService->update($address, $user->address->id);
         } else {
             $address['user_id'] = $user->id;
-            $this->addressService->create($address);
+            return $this->addressService->create($address);
         }
     }
 }

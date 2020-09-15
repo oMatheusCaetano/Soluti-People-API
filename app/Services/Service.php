@@ -29,6 +29,6 @@ class Service
 
     public function destroy(int $id)
     {
-        $this->class::destroy($id);
+        return $this->class::destroy($id);
     }
 }

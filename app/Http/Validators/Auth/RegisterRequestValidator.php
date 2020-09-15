@@ -14,6 +14,8 @@ class RegisterRequestValidator extends AuthRequestValidator
     {
         $this->controller->validate($request, [
             'name' => 'required|max:255|min:2',
+            'cpf' => 'required',
+            'date_of_birth' => 'required',
             'email' => 'required|email|max:255|' . Rule::unique(self::TABLE_NAME)->ignore($request->id),
             'password' => 'required|max:255|min:8|confirmed',
         ]);
