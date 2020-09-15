@@ -32,9 +32,13 @@ class UserController extends Controller
     {
         try {
             $user = User::find($id);
-            return is_null($user)
-            ? response()->json('', 204)
-            : response()->json($user, 200);
+            if (is_null($user)) {
+                return response()->json('', 204);
+            } else {
+                $user['telephones'] = $user->telephones;
+                $user['address'] = $user->address;
+                return response()->json($user, 200);
+            }
         } catch (\Exception $e) {
             return $this->getGeneralErrorResponse();
         }
