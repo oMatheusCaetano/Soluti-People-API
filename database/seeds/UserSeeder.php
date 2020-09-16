@@ -14,13 +14,13 @@ class UserSeeder extends Seeder
     {
         User::create([
             'name' => 'Jane Doe',
-            'email' => 'jane.doe@example.com',
+            'email' => 'jane.doe@soluti.com.br',
             'password' => '123456789',
         ]);
 
         User::create([
             'name' => 'John Doe',
-            'email' => 'john.doe@example.com',
+            'email' => 'john.doe@soluti.com.br',
             'password' => '123456789',
         ]);
     }

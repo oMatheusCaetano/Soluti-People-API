@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Address;
 use App\Http\Validators\UserRequestValidator;
 use App\Services\UserService;
 use App\User;
@@ -22,7 +23,9 @@ class UserController extends Controller
     public function index(): JsonResponse
     {
         try {
-            return response()->json(User::paginate(10), 200);
+            return empty($_GET)
+            ? response()->json(User::paginate(10), 200)
+            : response()->json($this->getWithFilters($_GET));
         } catch (\Exception $e) {
             return $this->getGeneralErrorResponse();
         }
@@ -49,5 +52,24 @@ class UserController extends Controller
         $this->validator->validate($request);
         $user = $this->userService->update($request->all(), $id);
         return response()->json($user, 200);
+    }
+
+    private function getWithFilters(array $filters)
+    {
+        if (isset($filters['cpf'])) {
+            return User::where('cpf', $filters['cpf'])->get();
+        }
+
+        if (isset($filters['email'])) {
+            return User::where('email', $filters['email'])->get();
+        }
+
+        if (isset($filters['city'])) {
+            $data = Address::where('city', $filters['city'])->get();
+            foreach ($data as $key => $value) {
+                $data[$key] = $value->user;
+            }
+            return $data;
+        }
     }
 }
