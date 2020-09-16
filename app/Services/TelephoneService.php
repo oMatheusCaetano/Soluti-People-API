@@ -11,4 +11,11 @@ class TelephoneService extends Service
     {
         parent::__construct(Telephone::class);
     }
+
+    public function create(array $data)
+    {
+        if (isset($data['number']) && !empty($data['number'])) {
+            return Telephone::create($data);
+        }
+    }
 }
