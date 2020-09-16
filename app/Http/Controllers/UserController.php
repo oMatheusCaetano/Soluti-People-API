@@ -13,6 +13,7 @@ class UserController extends Controller
 {
 
     private $userService;
+    private $perPage = 10;
 
     public function __construct(UserRequestValidator $validator, UserService $userService)
     {
@@ -23,9 +24,10 @@ class UserController extends Controller
     public function index(): JsonResponse
     {
         try {
-            return empty($_GET)
-            ? response()->json(User::paginate(10), 200)
-            : response()->json($this->getWithFilters($_GET));
+            $data = $this->getWithFilters($_GET);
+            return $data
+            ? response()->json($data, 200)
+            : response()->json(User::paginate($this->perPage), 200);
         } catch (\Exception $e) {
             return $this->getGeneralErrorResponse();
         }
@@ -57,19 +59,21 @@ class UserController extends Controller
     private function getWithFilters(array $filters)
     {
         if (isset($filters['cpf'])) {
-            return User::where('cpf', $filters['cpf'])->get();
+            return User::where('cpf', $filters['cpf'])->paginate($this->perPage);
         }
 
         if (isset($filters['email'])) {
-            return User::where('email', $filters['email'])->get();
+            return User::where('email', $filters['email'])->paginate($this->perPage);
         }
 
         if (isset($filters['city'])) {
-            $data = Address::where('city', $filters['city'])->get();
+            $data = Address::where('city', $filters['city'])->paginate($this->perPage);
             foreach ($data as $key => $value) {
                 $data[$key] = $value->user;
             }
             return $data;
         }
+
+        return false;
     }
 }
