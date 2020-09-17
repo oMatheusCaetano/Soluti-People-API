@@ -21,7 +21,8 @@ class RegisterController extends AuthController
         try {
             return response()->json(User::create($request->all()), 201);
         } catch (\Exception $e) {
-            return $this->getGeneralErrorResponse();
+            return response()->json(['message' => $e->getMessage()], 500);
+            // return $this->getGeneralErrorResponse();
         }
     }
 }
