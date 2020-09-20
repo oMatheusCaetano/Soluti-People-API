@@ -2,9 +2,9 @@
 
 namespace App\Http\Services;
 
-use App\Address;
 use App\Telephone;
 use App\User;
+use Illuminate\Support\Facades\DB;
 
 // use Illuminate\Support\Facades\DB;
 
@@ -20,7 +20,7 @@ class UserService
      */
     public function update(array $data, User $user): User
     {
-        $telephones = [];
+        DB::beginTransaction();
         $user->fill($data);
 
         if (isset($data['address'])) {
@@ -30,6 +30,8 @@ class UserService
         if (isset($data['telephones'])) {
             $this->handleTelephones($data['telephones'], $user);
         }
+        $user->save();
+        DB::commit();
 
         return $user;
     }

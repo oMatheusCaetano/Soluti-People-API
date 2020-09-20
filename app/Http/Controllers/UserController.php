@@ -88,7 +88,8 @@ class UserController extends Controller
                 return $this->getGeneral404Response();
             }
             $user = $this->userService->update($request->all(), $user);
-            $user->save();
+            $user['telephones'] = $user->telephones;
+            $user['address'] = $user->address;
             return response()->json($user, 200);
         } catch (\Exception $e) {
             return $this->getGeneral500Response($e);
