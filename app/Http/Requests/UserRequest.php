@@ -8,8 +8,6 @@ use Pearl\RequestValidate\RequestAbstract;
 class UserRequest extends RequestAbstract
 {
 
-    private const TABLE_NAME = 'password';
-
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -29,9 +27,9 @@ class UserRequest extends RequestAbstract
     {
         return [
             'name' => 'required|min:2',
-            'cpf' => 'required|size:11|unique:users',
+            'cpf' => 'required|size:11|unique:users,cpf,' . $this->id,
             'date_of_birth' => 'required|date',
-            'email' => 'required|email|unique:users' . $this->id,
+            'email' => 'required|email|unique:users,email,' . $this->id,
             'password' => 'required|min:8|confirmed',
         ];
     }
@@ -62,4 +60,5 @@ class UserRequest extends RequestAbstract
             'password.confirmed' => 'A confirmação da senha não está igual a senha.',
         ];
     }
+
 }

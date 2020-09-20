@@ -67,8 +67,12 @@ class UserController extends Controller
      */
     public function update(UserRequest $request, int $id): JsonResponse
     {
-        $user = $this->userService->update($request->all(), $id);
-        return response()->json($user, 200);
+        try {
+            $user = $this->userService->update($request->all(), $id);
+            return response()->json($user, 200);
+        } catch (\Exception $e) {
+            return $this->getGeneral500Response();
+        }
     }
 
     private function getWithFilters(array $filters)
