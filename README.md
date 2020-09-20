@@ -2,7 +2,7 @@
 <h1 align=center>SOLUTI PEOPLE API</h1>
 <hr>
 
-## Sobre SOLUTI PEOPLE API
+## Sobre Soluti People API
 Soluti People é uma API desenvolvida com [LUMEN](https://lumen.laravel.com/).
 Esta aplicação realiza o gerenciamento dos clientes Soluti.
 
