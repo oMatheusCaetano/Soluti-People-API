@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Address;
 use App\Http\Requests\UserRequest;
-use App\Services\UserService;
+use App\Http\Services\UserService;
 use App\User;
 use Illuminate\Http\JsonResponse;
 
@@ -60,7 +60,22 @@ class UserController extends Controller
     }
 
     /**
-     * Update one users
+     * Create a new user
+     *
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function store(UserRequest $request): JsonResponse
+    {
+        try {
+            return response()->json(User::create($request->all()), 201);
+        } catch (\Exception $e) {
+            return $this->getGeneral500Response();
+        }
+    }
+
+    /**
+     * Update an users
      *
      * @param int $id
      * @return JsonResponse
@@ -68,10 +83,15 @@ class UserController extends Controller
     public function update(UserRequest $request, int $id): JsonResponse
     {
         try {
-            $user = $this->userService->update($request->all(), $id);
+            $user = User::find($id);
+            if (!$user) {
+                return $this->getGeneral404Response();
+            }
+            $user = $this->userService->update($request->all(), $user);
+            $user->save();
             return response()->json($user, 200);
         } catch (\Exception $e) {
-            return $this->getGeneral500Response();
+            return $this->getGeneral500Response($e);
         }
     }
 

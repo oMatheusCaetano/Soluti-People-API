@@ -1,74 +1,65 @@
 <?php
 
-namespace App\Services;
+namespace App\Http\Services;
 
+use App\Address;
+use App\Telephone;
 use App\User;
-use Illuminate\Support\Facades\DB;
 
-class UserService extends Service
+// use Illuminate\Support\Facades\DB;
+
+class UserService
 {
 
-    private $telephoneService;
-    private $addressService;
-
-    public function __construct(TelephoneService $telephoneService, AddressService $addressService)
-    {
-        $this->telephoneService = $telephoneService;
-        $this->addressService = $addressService;
-    }
-
-    public function update(array $data, int $id)
+    /**
+     * Update an user data
+     *
+     * @param array $data
+     * @param User $user
+     * @return User
+     */
+    public function update(array $data, User $user): User
     {
         $telephones = [];
-        DB::beginTransaction();
-        $user = User::find($id);
-        if (is_null($user)) {
-            return null;
-        }
         $user->fill($data);
-        $user->save();
-        if (isset($data['telephones'])) {
-            $telephones = $this->manageTelephones($data['telephones'], $user);
-        }
+
         if (isset($data['address'])) {
-            $this->manageAddress($data['address'], $user);
+            $this->handleAddress($data['address'], $user);
         }
-        DB::commit();
-        $user->telephones = $telephones;
+
+        if (isset($data['telephones'])) {
+            $this->handleTelephones($data['telephones'], $user);
+        }
+
         return $user;
     }
 
-    private function manageTelephones(array $telephones, User $user)
+    /**
+     * Update or Create user address
+     *
+     * @param array $address
+     * @param User $user
+     * @return void
+     */
+    private function handleAddress(array $address, User $user): void
     {
-        $phones = [];
-        if (empty($telephones)) {
-            foreach ($user->telephones as $telephone) {
-                $this->telephoneService->destroy($telephone->id);
-            }
-            return $phones;
-        }
-        foreach ($telephones as $telephone) {
-            if (isset($telephone['id'])) {
-                $phones[] = $this->telephoneService->update($telephone, $telephone['id']);
-            } else {
-                $telephone['user_id'] = $user->id;
-                $phones[] = $this->telephoneService->create($telephone);
-            }
-        }
-        return $phones;
+        $user->address
+        ? $user->address()->update($address)
+        : $user->address()->create($address);
     }
 
-    private function manageAddress(array $address, User $user)
+    /**
+     * Update telephones from user
+     *
+     * @param array $address
+     * @param User $user
+     * @return void
+     */
+    private function handleTelephones(array $telephones, User $user): void
     {
-        if (empty($address)) {
-            if (!is_null($user->address)) {
-                return $this->addressService->destroy($user->address->id);
-            }
-        } else if (isset($address['id'])) {
-            return $this->addressService->update($address, $user->address->id);
-        } else {
-            $address['user_id'] = $user->id;
-            return $this->addressService->create($address);
-        }
+        Telephone::where('user_id', $user->id)->delete();
+        array_walk($telephones, function ($telephone, $i, $user) {
+            $user->telephones()->create($telephone);
+        }, $user);
     }
 }
