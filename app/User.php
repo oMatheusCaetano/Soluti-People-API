@@ -19,31 +19,61 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     protected $fillable = ['name', 'cpf', 'date_of_birth', 'email', 'password'];
     protected $hidden = ['password'];
 
+    /**
+     * returns the telephones that the user has
+     *
+     * @return HasMany
+     */
     public function telephones(): HasMany
     {
         return $this->hasMany(Telephone::class);
     }
 
+    /**
+     * returns the address that the user has
+     *
+     * @return HasOne
+     */
     public function address(): HasOne
     {
         return $this->hasOne(Address::class);
     }
 
+    /**
+     * Defines what should happen with email before insert into database
+     *
+     * @return void
+     */
     public function setEmailAttribute(string $email): void
     {
         $this->attributes['email'] = strtolower($email);
     }
 
+    /**
+     * Defines what should happen with password before insert into database
+     *
+     * @return void
+     */
     public function setPasswordAttribute(string $password): void
     {
         $this->attributes['password'] = Hash::make($password);
     }
 
+    /**
+     * Get the identifier that will be stored in the subject claim of the JWT.
+     *
+     * @return mixed
+     */
     public function getJWTIdentifier()
     {
         return $this->getKey();
     }
 
+    /**
+     * Return a key value array, containing any custom claims to be added to the JWT.
+     *
+     * @return array
+     */
     public function getJWTCustomClaims(): array
     {
         return [];

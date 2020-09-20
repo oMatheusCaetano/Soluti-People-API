@@ -10,6 +10,11 @@ class Telephone extends Model
 
     protected $fillable = ['number', 'user_id'];
 
+    /**
+     * returns the user that the telephone belongs to
+     *
+     * @return BelongsTo
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

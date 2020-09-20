@@ -75,6 +75,11 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * Fetches users base on e-mail, city or CPF filters
+     *
+     * @param array $filters
+     */
     private function getWithFilters(array $filters)
     {
         if (isset($filters['cpf'])) {
