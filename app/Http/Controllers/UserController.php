@@ -7,6 +7,7 @@ use App\Http\Requests\UserRequest;
 use App\Http\Services\UserService;
 use App\User;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
@@ -25,10 +26,10 @@ class UserController extends Controller
      *
      * @return JsonResponse
      */
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         try {
-            $data = $this->getWithFilters($_GET);
+            $data = $this->getWithFilters($request->all());
             return $data
             ? response()->json($data, 200)
             : response()->json(User::paginate($this->perPage), 200);
