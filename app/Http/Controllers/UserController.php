@@ -13,7 +13,7 @@ class UserController extends Controller
 {
 
     private $userService;
-    private $perPage = 10;
+    private $perPage = 15;
 
     public function __construct(UserService $userService)
     {
@@ -93,7 +93,7 @@ class UserController extends Controller
             $user['address'] = $user->address;
             return response()->json($user, 200);
         } catch (\Exception $e) {
-            return $this->getGeneral500Response($e);
+            return $this->getGeneral500Response();
         }
     }
 
