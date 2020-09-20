@@ -25,7 +25,7 @@ class RegisterRequestValidator extends AuthRequestValidator
         );
     }
 
-    private function messages(): array
+    protected function messages(): array
     {
         return [
             'required' => 'O :attribute é obrigatório.',

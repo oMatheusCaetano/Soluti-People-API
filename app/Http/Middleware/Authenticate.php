@@ -4,22 +4,14 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Contracts\Auth\Factory as Auth;
+use Illuminate\Http\Request;
 
 class Authenticate
 {
-    /**
-     * The authentication guard factory instance.
-     *
-     * @var \Illuminate\Contracts\Auth\Factory
-     */
-    protected $auth;
 
-    /**
-     * Create a new middleware instance.
-     *
-     * @param  \Illuminate\Contracts\Auth\Factory  $auth
-     * @return void
-     */
+    protected $auth;
+    private $failureMessage = 'Acesso não autorizado.';
+
     public function __construct(Auth $auth)
     {
         $this->auth = $auth;
@@ -33,10 +25,10 @@ class Authenticate
      * @param  string|null  $guard
      * @return mixed
      */
-    public function handle($request, Closure $next, $guard = null)
+    public function handle(Request $request, Closure $next, $guard = null)
     {
         if ($this->auth->guard($guard)->guest()) {
-            return response()->json(['message' => 'Unauthorized.'], 401);
+            return response()->json(['message' => $this->failureMessage], 401);
         }
 
         return $next($request);

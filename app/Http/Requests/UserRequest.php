@@ -1,31 +1,47 @@
 <?php
 
-namespace App\Http\Validators;
+namespace App\Http\Requests;
 
-use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Pearl\RequestValidate\RequestAbstract;
 
-class UserRequestValidator extends RequestValidator
+class UserRequest extends RequestAbstract
 {
 
-    const TABLE_NAME = 'users';
+    private const TABLE_NAME = 'password';
 
-    public function validate(Request $request): void
+    /**
+     * Determine if the user is authorized to make this request.
+     *
+     * @return bool
+     */
+    public function authorize(): bool
     {
-        $this->controller->validate(
-            $request,
-            [
-                'name' => 'required|max:255|min:2',
-                'cpf' => 'required|' . Rule::unique(self::TABLE_NAME)->ignore($request->id),
-                'date_of_birth' => 'required',
-                'email' => 'required|email|max:255|' . Rule::unique(self::TABLE_NAME)->ignore($request->id),
-                'password' => 'required|max:255|min:8|confirmed',
-            ],
-            $this->messages()
-        );
+        return true;
     }
 
-    protected function messages(): array
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array
+     */
+    public function rules(): array
+    {
+        return [
+            'name' => 'required|min:2',
+            'cpf' => 'required|size:11|unique:users',
+            'date_of_birth' => 'required|date',
+            'email' => 'required|email|unique:users' . $this->id,
+            'password' => 'required|min:8|confirmed',
+        ];
+    }
+
+    /**
+     * Get custom messages for validator errors.
+     *
+     * @return array
+     */
+    public function messages(): array
     {
         return [
             'required' => 'O :attribute é obrigatório.',
@@ -34,13 +50,14 @@ class UserRequestValidator extends RequestValidator
             'max' => 'O :attribute não pode conter mais de :max caracteres.',
             'size' => 'O :attribute precisa ter :size caracteres.',
             'unique' => 'Este :attribute já está cadastrado.',
+
             'name.required' => 'O nome é obrigatório.',
-            'name.max' => 'O nome não pode conter mais de :max caracteres.',
             'name.min' => 'O nome precisa conter pelo menos :min caracteres.',
+
             'date_of_birth.required' => 'A data de nascimento é obrigatória.',
             'date_of_birth.date' => 'A data de nascimento precisa ser válida.',
+
             'password.required' => 'A senha é obrigatória.',
-            'password.max' => 'A senha não pode conter mais de :max caracteres.',
             'password.min' => 'A senha precisa conter pelo menos :min caracteres.',
             'password.confirmed' => 'A confirmação da senha não está igual a senha.',
         ];

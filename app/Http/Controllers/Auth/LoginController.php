@@ -2,37 +2,54 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Http\Validators\Auth\LoginRequestValidator;
+use App\Http\Requests\LoginRequest;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class LoginController extends AuthController
 {
 
-    public function __construct(LoginRequestValidator $validator)
-    {
-        parent::__construct($validator);
-    }
+    private const USERNAME_FIELD = 'email';
+    private const PASSWORD_FIELD = 'password';
+    private const FAILURE_MESSAGE = 'E-mail ou senha inválidos';
 
-    public function login(Request $request): JsonResponse
+    /**
+     * Make login
+     *
+     * @param LoginRequest $request
+     * @return JsonResponse
+     */
+    public function login(LoginRequest $request): JsonResponse
     {
-        $this->validator->validate($request);
-        $credentials = $this->getCredentials($request);
+        $credentials = $request->only([self::USERNAME_FIELD, self::PASSWORD_FIELD]);
         $token = Auth::attempt($credentials);
         return !$token
-        ? $this->getGeneralUnauthorizedResponse()
+        ? $this->getGeneralErrorResponse(401, self::FAILURE_MESSAGE)
         : $this->respondWithToken($token);
     }
 
-    public function logout(): JsonResponse
+    /**
+     * Returns a JSON response with a JWT token
+     *
+     * @param string $token
+     * @return JsonResponse
+     */
+    public function respondWithToken(string $token): JsonResponse
     {
-        auth()->logout();
-        return response()->json('', 204);
+        return response()->json([
+            'token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => 3600,
+        ], 200);
     }
 
-    public function getCredentials(Request $request): array
+    /**
+     * Returns a JWT attached to the authenticated user
+     *
+     * @return JsonResponse
+     */
+    public function refresh(): JsonResponse
     {
-        return $request->only(['email', 'password']);
+        return $this->respondWithToken(auth()->refresh());
     }
 }

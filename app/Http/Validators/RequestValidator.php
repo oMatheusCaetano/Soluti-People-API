@@ -15,4 +15,6 @@ abstract class RequestValidator implements RequestValidatorInterface
     }
 
     abstract public function validate(Request $request): void;
+
+    abstract protected function messages(): array;
 }

@@ -10,4 +10,9 @@ class AuthRequestValidator extends RequestValidator
 
     public function validate(Request $request): void
     {}
+
+    protected function messages(): array
+    {
+        return [];
+    }
 }

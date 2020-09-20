@@ -3,11 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Address;
-use App\Http\Validators\UserRequestValidator;
+use App\Http\Requests\UserRequest;
 use App\Services\UserService;
 use App\User;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
@@ -15,12 +14,17 @@ class UserController extends Controller
     private $userService;
     private $perPage = 10;
 
-    public function __construct(UserRequestValidator $validator, UserService $userService)
+    public function __construct(UserService $userService)
     {
-        parent::__construct($validator);
         $this->userService = $userService;
     }
 
+    /**
+     * Fetches all users with pagination.
+     * It also accepts query strings for filters by e-mail, city or CPF
+     *
+     * @return JsonResponse
+     */
     public function index(): JsonResponse
     {
         try {
@@ -29,15 +33,21 @@ class UserController extends Controller
             ? response()->json($data, 200)
             : response()->json(User::paginate($this->perPage), 200);
         } catch (\Exception $e) {
-            return $this->getGeneralErrorResponse();
+            return $this->getGeneral500Response();
         }
     }
 
+    /**
+     * Fetch one users
+     *
+     * @param int $id
+     * @return JsonResponse
+     */
     public function show(int $id): JsonResponse
     {
         try {
             $user = User::find($id);
-            if (is_null($user)) {
+            if (!$user) {
                 return response()->json('', 204);
             } else {
                 $user['telephones'] = $user->telephones;
@@ -45,13 +55,18 @@ class UserController extends Controller
                 return response()->json($user, 200);
             }
         } catch (\Exception $e) {
-            return $this->getGeneralErrorResponse();
+            return $this->getGeneral500Response();
         }
     }
 
-    public function update(Request $request, int $id): JsonResponse
+    /**
+     * Update one users
+     *
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function update(UserRequest $request, int $id): JsonResponse
     {
-        $this->validator->validate($request);
         $user = $this->userService->update($request->all(), $id);
         return response()->json($user, 200);
     }
