@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\Cpf;
 use Illuminate\Validation\Rule;
 use Pearl\RequestValidate\RequestAbstract;
 
@@ -27,7 +28,7 @@ class UserRequest extends RequestAbstract
     {
         return [
             'name' => 'required|min:2',
-            'cpf' => 'required|size:11|unique:users,cpf,' . $this->id,
+            'cpf' => ['required', new Cpf(), "unique:users,cpf,$this->id"],
             'date_of_birth' => 'required|date',
             'email' => 'required|email|unique:users,email,' . $this->id,
             'password' => 'required|min:8|confirmed',
